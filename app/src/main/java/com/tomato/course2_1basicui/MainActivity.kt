@@ -1,12 +1,18 @@
 package com.tomato.course2_1basicui
 
+import android.graphics.drawable.Drawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import android.widget.RadioButton
 import android.widget.Toast
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import com.tomato.course2_1basicui.databinding.ActivityMainBinding
 import java.net.URLEncoder
 
@@ -29,24 +35,8 @@ class MainActivity : AppCompatActivity() {
             showToast()
         }
 
-        binding.editText1.setOnEditorActionListener { _, actionId, event ->
-            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                return@setOnEditorActionListener loadRandomImage()
-            }
-            return@setOnEditorActionListener false
-        }
-
-        binding.checkBox1.setOnClickListener {
-            updateUi()
-        }
-        updateUi()
-    }
-
-    private fun updateUi() {
-        if (binding.checkBox1.isChecked) {
-            binding.editText1.visibility = View.VISIBLE
-        } else {
-            binding.editText1.visibility = View.GONE
+        binding.radioGroup.setOnCheckedChangeListener { group, checkedId ->
+            loadRandomImage()
         }
     }
 
@@ -56,17 +46,32 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun loadRandomImage(): Boolean {
-        val category = binding.editText1.text.toString()
-        if (category.isBlank() && binding.checkBox1.isChecked) {
-            binding.editText1.error = "Set category"
-            return true
-        }
+        val checkedId = binding.radioGroup.checkedRadioButtonId
+        val keyword = binding.radioGroup.findViewById<RadioButton>(checkedId).text.toString()
 
-        val encodedCategory = URLEncoder.encode(category, "UTF-8")
+
+        val encodedCategory = URLEncoder.encode(keyword, "UTF-8")
+
+        binding.progressBar.visibility = View.VISIBLE
+
         Glide.with(this)
             .load("https://source.unsplash.com/random/800x600?$encodedCategory")
             .skipMemoryCache(true)
             .diskCacheStrategy(DiskCacheStrategy.NONE)
+            .listener(object: RequestListener<Drawable> {
+                override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean
+                ): Boolean {
+                    binding.progressBar.visibility = View.GONE
+                    return false
+                }
+
+                override fun onResourceReady( resource: Drawable?, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean
+                ): Boolean {
+                    binding.progressBar.visibility = View.GONE
+                    return false
+                }
+
+            })
             .into(binding.imageView1)
         return false
     }
