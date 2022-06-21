@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Course2_1.BasicUI</string>
+    <string name="image_content_description">Image content description</string>
+    <string name="get_random_image">GET RANDOM IMAGE</string>
+    <string name="enter_image_category">Enter image category</string>
+    <string name="use_keyword">Use keyword</string>
+</resources>
